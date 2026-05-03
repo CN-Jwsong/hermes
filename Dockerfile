@@ -21,21 +21,24 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
-# Clone Hermes Agent
-RUN git clone https://github.com/NousResearch/hermes-agent.git $HERMES_INSTALL_DIR
+# Clone Hermes Agent temporarily to install dependencies
+RUN git clone https://github.com/NousResearch/hermes-agent.git /tmp/hermes-agent \
+    && cd /tmp/hermes-agent \
+    && python3 -m venv .venv \
+    && /tmp/hermes-agent/.venv/bin/pip install --upgrade pip \
+    && /tmp/hermes-agent/.venv/bin/pip install -e . \
+    && /tmp/hermes-agent/.venv/bin/pip install fastapi uvicorn \
+    && mkdir -p /opt/hermes \
+    && cp -r /tmp/hermes-agent/.venv /opt/hermes/ \
+    && cp /tmp/hermes-agent/*.toml /tmp/hermes-agent/*.py /opt/hermes/ 2>/dev/null || true \
+    && rm -rf /tmp/hermes-agent
 
-WORKDIR $HERMES_INSTALL_DIR
+WORKDIR /root/.hermes
 
-# Create virtual environment (matches install.sh default behavior)
-RUN python3 -m venv .venv
-ENV PATH="$HERMES_INSTALL_DIR/.venv/bin:$PATH"
-
-# Install Python dependencies
-RUN pip install --upgrade pip \
-    && pip install -e .
+ENV PATH="/opt/hermes/.venv/bin:$PATH"
 
 # Add hermes to PATH
-RUN ln -s $HERMES_INSTALL_DIR/.venv/bin/hermes /usr/local/bin/hermes
+RUN ln -s /opt/hermes/.venv/bin/hermes /usr/local/bin/hermes
 
 # Initialize shell
 RUN echo 'export PATH=$PATH:/usr/local/bin' >> /root/.bashrc

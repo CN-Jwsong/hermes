@@ -17,7 +17,7 @@ spec:
         - name: dashboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/root/.hermes/hermes-agent/.venv/bin/hermes", "dashboard", "--host", "0.0.0.0", "--insecure"]
+          command: ["hermes", "dashboard", "--host", "0.0.0.0", "--insecure"]
           ports:
             - containerPort: {{ .Values.dashboard.service.port }}
           env:
@@ -25,7 +25,7 @@ spec:
               value: "http://hermes-gateway:{{ .Values.gateway.service.port }}"
           volumeMounts:
             - name: data
-              mountPath: /root/.hermes-data
+              mountPath: /root/.hermes
               readOnly: false
           resources:
             {{- toYaml .Values.dashboard.resources | nindent 12 }}

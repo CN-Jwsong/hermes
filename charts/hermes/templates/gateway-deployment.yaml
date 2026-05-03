@@ -20,7 +20,7 @@ spec:
         - name: hermes
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/root/.hermes/hermes-agent/.venv/bin/hermes", "gateway", "run"]
+          command: ["hermes", "gateway", "run"]
           ports:
             - containerPort: {{ .Values.gateway.service.port }}
           envFrom:
@@ -28,7 +28,7 @@ spec:
                 name: hermes-secrets
           volumeMounts:
             - name: data
-              mountPath: /root/.hermes-data
+              mountPath: /root/.hermes
             - name: dshm
               mountPath: /dev/shm
           resources:
