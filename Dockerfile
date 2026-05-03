@@ -22,7 +22,7 @@ RUN cd /tmp/hermes-agent \
     && /opt/hermes/.venv/bin/pip install --no-cache-dir fastapi uvicorn
 
 # Stage 2: Runtime
-FROM ubuntu:24.04-slim
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/hermes/.venv/bin:$PATH"
