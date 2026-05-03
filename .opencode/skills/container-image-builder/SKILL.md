@@ -41,8 +41,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     ffmpeg \
     ripgrep \
-    python3.11 \
-    python3.11-venv \
+    python3 \
+    python3-venv \
     python3-pip \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -57,7 +57,7 @@ RUN git clone https://github.com/NousResearch/hermes-agent.git $HERMES_INSTALL_D
 WORKDIR $HERMES_INSTALL_DIR
 
 # Create virtual environment (matches install.sh default behavior)
-RUN python3.11 -m venv .venv
+RUN python3 -m venv .venv
 ENV PATH="$HERMES_INSTALL_DIR/.venv/bin:$PATH"
 
 # Install Python dependencies
