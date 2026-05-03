@@ -26,7 +26,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /root/.hermes
-              readOnly: "false"
+              readOnly: false
           resources:
             {{- toYaml .Values.dashboard.resources | nindent 12 }}
       volumes:
