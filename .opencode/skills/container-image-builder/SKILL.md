@@ -52,7 +52,7 @@ RUN cd /tmp/hermes-agent \
     && /opt/hermes/.venv/bin/pip install --no-cache-dir fastapi uvicorn
 
 # Stage 2: Runtime
-FROM ubuntu:24.04-slim
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/hermes/.venv/bin:$PATH"
@@ -95,6 +95,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: read
