@@ -25,52 +25,51 @@ Use this skill when you need to:
 
 ## Dockerfile Template
 
-Use this as the base Dockerfile:
+Minimal multi-stage image designed for Kubernetes deployment. All configuration is managed via Kubernetes `command` and environment variables.
 
 ```dockerfile
-FROM ubuntu:24.04
+# Stage 1: Builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HERMES_HOME=/root/.hermes
-ENV HERMES_INSTALL_DIR=/root/.hermes/hermes-agent
 
-# Base dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     git \
-    build-essential \
-    ffmpeg \
-    ripgrep \
     python3 \
     python3-venv \
     python3-pip \
+    build-essential \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs
+RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git /tmp/hermes-agent
 
-# Clone Hermes Agent
-RUN git clone https://github.com/NousResearch/hermes-agent.git $HERMES_INSTALL_DIR
+RUN cd /tmp/hermes-agent \
+    && python3 -m venv /opt/hermes/.venv \
+    && /opt/hermes/.venv/bin/pip install --no-cache-dir --upgrade pip \
+    && /opt/hermes/.venv/bin/pip install --no-cache-dir -e /tmp/hermes-agent \
+    && /opt/hermes/.venv/bin/pip install --no-cache-dir fastapi uvicorn
 
-WORKDIR $HERMES_INSTALL_DIR
+# Stage 2: Runtime
+FROM ubuntu:24.04-slim
 
-# Create virtual environment (matches install.sh default behavior)
-RUN python3 -m venv .venv
-ENV PATH="$HERMES_INSTALL_DIR/.venv/bin:$PATH"
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH="/opt/hermes/.venv/bin:$PATH"
+ENV HERMES_HOME=/root/.hermes
 
-# Install Python dependencies
-RUN pip install --upgrade pip \
-    && pip install -e .
+RUN apt-get update && apt-get install -y \
+    python3 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Add hermes to PATH
-RUN ln -s $HERMES_INSTALL_DIR/.venv/bin/hermes /usr/local/bin/hermes
+COPY --from=builder /opt/hermes /opt/hermes
 
-# Initialize shell
-RUN echo 'export PATH=$PATH:/usr/local/bin' >> /root/.bashrc
+RUN ln -s /opt/hermes/.venv/bin/hermes /usr/local/bin/hermes \
+    && mkdir -p /root/.hermes
 
-# Default entrypoint
+WORKDIR /root/.hermes
+
 CMD ["hermes"]
 ```
 
