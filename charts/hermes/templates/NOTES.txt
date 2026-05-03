@@ -1,0 +1,15 @@
+1. Get the application details:
+  Namespace: {{ .Values.namespace }}
+
+  Gateway Service:
+    Name: hermes-gateway
+    Port: {{ .Values.gateway.service.port }}
+
+  Dashboard Service:
+    Name: hermes-dashboard
+    Port: {{ .Values.dashboard.service.port }}
+
+2. Expose the dashboard port:
+  kubectl --namespace {{ .Values.namespace }} port-forward svc/hermes-dashboard {{ .Values.dashboard.service.port }}:{{ .Values.dashboard.service.port }}
+
+  Then visit: http://127.0.0.1:{{ .Values.dashboard.service.port }}
