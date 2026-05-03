@@ -7,7 +7,7 @@ This repository contains base images for Hermes. Images are automatically rebuil
 The latest image is available at:
 
 ```
-ghcr.io/CN-Jwsong/hermes:latest
+ghcr.io/cn-jwsong/hermes:latest
 ```
 
 ## Automated Builds
@@ -23,5 +23,5 @@ You can also trigger a manual build from the **Actions** tab.
 ## Usage
 
 ```bash
-docker run --rm ghcr.io/CN-Jwsong/hermes:latest hermes
+docker run --rm ghcr.io/cn-jwsong/hermes:latest hermes
 ```
