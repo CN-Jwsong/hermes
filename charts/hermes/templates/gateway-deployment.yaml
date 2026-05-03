@@ -28,7 +28,7 @@ spec:
                 name: hermes-secrets
           volumeMounts:
             - name: data
-              mountPath: /root/.hermes
+              mountPath: /root/.hermes-data
             - name: dshm
               mountPath: /dev/shm
           resources:

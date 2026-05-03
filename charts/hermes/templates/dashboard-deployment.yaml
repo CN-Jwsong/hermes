@@ -25,7 +25,7 @@ spec:
               value: "http://hermes-gateway:{{ .Values.gateway.service.port }}"
           volumeMounts:
             - name: data
-              mountPath: /root/.hermes
+              mountPath: /root/.hermes-data
               readOnly: false
           resources:
             {{- toYaml .Values.dashboard.resources | nindent 12 }}
