@@ -18,11 +18,11 @@ gateway:
     port: 8642
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "256m"
     limits:
-      memory: "4Gi"
-      cpu: "2000m"
+      memory: "1Gi"
+      cpu: "1000m"
 
 dashboard:
   replicas: 1
@@ -31,11 +31,11 @@ dashboard:
     port: 9119
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
       memory: "512Mi"
-      cpu: "500m"
+      cpu: "256m"
+    limits:
+      memory: "2GI"
+      cpu: "1000m"
 
 persistence:
   storageClass: ""
