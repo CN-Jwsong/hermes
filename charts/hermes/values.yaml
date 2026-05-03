@@ -34,7 +34,7 @@ dashboard:
       memory: "512Mi"
       cpu: "256m"
     limits:
-      memory: "2GI"
+      memory: "2Gi"
       cpu: "1000m"
 
 persistence:
