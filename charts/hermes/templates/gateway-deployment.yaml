@@ -20,7 +20,7 @@ spec:
         - name: hermes
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["hermes", "gateway", "run"]
+          command: ["/root/.hermes/hermes-agent/.venv/bin/hermes", "gateway", "run"]
           ports:
             - containerPort: {{ .Values.gateway.service.port }}
           envFrom:
