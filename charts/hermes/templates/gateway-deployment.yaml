@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hermes-gateway
+  template:
+    metadata:
+      labels:
+        app: hermes-gateway
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: hermes
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["gateway", "run"]
+          ports:
+            - containerPort: {{ .Values.gateway.service.port }}
+          envFrom:
+            - secretRef:
+                name: hermes-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+        - name: wait-for-gateway
+          image: busybox:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sleep infinity
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.shmSize | quote }}

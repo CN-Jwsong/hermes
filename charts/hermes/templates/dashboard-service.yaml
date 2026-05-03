@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-dashboard
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.dashboard.service.type }}
+  selector:
+    app: hermes-dashboard
+  ports:
+    - port: {{ .Values.dashboard.service.port }}
+      targetPort: {{ .Values.dashboard.service.port }}

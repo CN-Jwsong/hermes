@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-dashboard
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.dashboard.replicas }}
+  selector:
+    matchLabels:
+      app: hermes-dashboard
+  template:
+    metadata:
+      labels:
+        app: hermes-dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["dashboard", "--host", "0.0.0.0", "--insecure"]
+          ports:
+            - containerPort: {{ .Values.dashboard.service.port }}
+          env:
+            - name: GATEWAY_HEALTH_URL
+              value: "http://hermes-gateway:{{ .Values.gateway.service.port }}"
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+              readOnly: "false"
+          resources:
+            {{- toYaml .Values.dashboard.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
