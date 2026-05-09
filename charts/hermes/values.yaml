@@ -8,6 +8,7 @@ image:
 secrets:
   openaiApiKey: "your-openai-api-key-here"
   gatewayAllowAllUsers: "true"
+  hermesAllowRootGateway: "1"
   anthropicApiKey: ""
   telegramBotToken: ""
 
