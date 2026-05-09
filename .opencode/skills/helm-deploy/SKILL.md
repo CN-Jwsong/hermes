@@ -62,6 +62,23 @@ Edit `values.yaml` to customize:
 
 - `image.repository` and `image.tag` - Container image
 - `secrets.*` - API keys and tokens
-- `gateway.resources` and `dashboard.resources` - CPU/memory limits
+- `gateway.agents[]` - List of gateway agent containers, each with:
+  - `name` - Container name (e.g. `gateway-hermes`, `gateway-coder`)
+  - `profile` - Profile flag (empty for default, `coder`, `devops`, etc.)
+  - `enabled` - Set `false` to disable an agent without removing it
+  - `resources` - Per-agent CPU/memory limits
+- `dashboard.resources` - CPU/memory limits
 - `persistence.size` and `persistence.storageClass` - Storage configuration
 - `namespace` - Target Kubernetes namespace
+
+## Multi-Agent Profiles
+
+The gateway supports running multiple agent profiles simultaneously:
+
+| Container | Profile | Command |
+|-----------|---------|---------|
+| gateway-hermes | (default) | `hermes gateway run` |
+| gateway-coder | `coder` | `hermes --profile=coder gateway run` |
+| gateway-devops | `devops` | `hermes --profile=devops gateway run` |
+
+To add a new profile, add an entry to `gateway.agents` in `values.yaml`. To disable an agent, set `enabled: false`.
