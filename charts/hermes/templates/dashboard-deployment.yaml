@@ -23,8 +23,6 @@ spec:
           env:
             - name: GATEWAY_HEALTH_URL
               value: "http://hermes-gateway:{{ .Values.gateway.service.port }}"
-            - name: PATH
-              value: "/root/.local/bin:/usr/local/bin:/opt/hermes/.venv/bin:/usr/bin:/bin"
           volumeMounts:
             - name: data
               mountPath: /root/.hermes
