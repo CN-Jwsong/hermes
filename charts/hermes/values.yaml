@@ -17,13 +17,37 @@ gateway:
   service:
     type: ClusterIP
     port: 8642
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "256m"
-    limits:
-      memory: "1Gi"
-      cpu: "1000m"
+  agents:
+    - name: gateway-hermes
+      profile: ""
+      enabled: true
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "256m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
+    - name: gateway-coder
+      profile: coder
+      enabled: true
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "256m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
+    - name: gateway-devops
+      profile: devops
+      enabled: true
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "256m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
 
 dashboard:
   replicas: 1

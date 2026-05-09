@@ -17,12 +17,20 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
       containers:
-        - name: hermes
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/local/bin/hermes", "gateway", "run"]
+{{- range $agent := .Values.gateway.agents }}
+      {{- if $agent.enabled }}
+        - name: {{ $agent.name }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            - /usr/local/bin/hermes
+{{- if $agent.profile }}
+            - "--profile={{ $agent.profile }}"
+{{- end }}
+            - gateway
+            - run
           ports:
-            - containerPort: {{ .Values.gateway.service.port }}
+            - containerPort: {{ $.Values.gateway.service.port }}
           envFrom:
             - secretRef:
                 name: hermes-secrets
@@ -32,7 +40,9 @@ spec:
             - name: dshm
               mountPath: /dev/shm
           resources:
-            {{- toYaml .Values.gateway.resources | nindent 12 }}
+            {{- toYaml $agent.resources | nindent 12 }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: data
           persistentVolumeClaim:
