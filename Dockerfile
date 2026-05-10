@@ -48,6 +48,7 @@ ENV PATH="/opt/hermes/.venv/bin:/usr/local/bin:$PATH"
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     ripgrep \
+    git \
     ca-certificates \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -71,6 +72,9 @@ RUN rm -rf \
 # Create CLI symlink
 RUN ln -s /opt/hermes/.venv/bin/hermes /usr/local/bin/hermes \
     && mkdir -p /root/.hermes
+
+# Set timezone to Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # Set working directory (K8s persistent mount point)
 WORKDIR /root/.hermes
