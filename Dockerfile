@@ -22,6 +22,28 @@ RUN curl -fsSL https://nodejs.org/dist/v22.0.0/node-v22.0.0-linux-x64.tar.gz -o 
 # Clone Hermes repository
 RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git $HERMES_DIR
 
+# Patch: fix kanban_db.py ValueError when completed_at is ISO 8601 string
+RUN python <<'PYEOF'
+p = '/opt/hermes/hermes_cli/kanban_db.py'
+with open(p) as f:
+    c = f.read()
+
+c = c.replace(
+    'def task_age(',
+    'def _to_ts(v):\n    try: return int(v)\n    except: from datetime import datetime; return int(datetime.fromisoformat(str(v).replace("Z","+00:00")).timestamp())\n\n\ndef task_age(',
+    1
+)
+
+c = c.replace(
+    'int(task.completed_at) - int(task.started_at or task.created_at)',
+    '_to_ts(task.completed_at) - _to_ts(task.started_at or task.created_at)'
+)
+
+with open(p, 'w') as f:
+    f.write(c)
+print("kanban_db.py patched successfully")
+PYEOF
+
 WORKDIR $HERMES_DIR
 
 # Create virtual environment and install dependencies
