@@ -17,7 +17,7 @@ spec:
         - name: dashboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/local/bin/hermes", "dashboard", "--host", "127.0.0.1", "--insecure"]
+          command: ["/usr/local/bin/hermes", "dashboard", "--host", "0.0.0.0", "--insecure"]
           ports:
             - containerPort: {{ .Values.dashboard.service.port }}
           env:
