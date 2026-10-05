@@ -14,10 +14,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js
-RUN curl -fsSL https://nodejs.org/dist/v22.22.0/node-v22.22.0-linux-x64.tar.gz -o node.tar.gz \
+# Node.js (multi-arch aware)
+ARG NODE_VERSION=22.22.0
+ARG TARGETARCH
+RUN case "$TARGETARCH" in \
+        amd64) NODE_ARCH=x64 ;; \
+        arm64) NODE_ARCH=arm64 ;; \
+        *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
+    esac \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz" -o node.tar.gz \
     && tar -xzf node.tar.gz -C /usr/local --strip-components=1 \
-    && rm -f node.tar.gz
+    && rm -f node.tar.gz \
+    && node --version
 # Clone Hermes
 RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git $HERMES_DIR
 
@@ -59,10 +67,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js runtime
-RUN curl -fsSL https://nodejs.org/dist/v22.22.0/node-v22.22.0-linux-x64.tar.gz -o node.tar.gz \
+# Node.js runtime (multi-arch aware)
+ARG NODE_VERSION=22.22.0
+ARG TARGETARCH
+RUN case "$TARGETARCH" in \
+        amd64) NODE_ARCH=x64 ;; \
+        arm64) NODE_ARCH=arm64 ;; \
+        *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
+    esac \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz" -o node.tar.gz \
     && tar -xzf node.tar.gz -C /usr/local --strip-components=1 \
-    && rm -f node.tar.gz
+    && rm -f node.tar.gz \
+    && node --version
 
 # Copy built environment
 COPY --from=builder /opt/hermes /opt/hermes
