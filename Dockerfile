@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js
-RUN curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.gz -o node.tar.gz \
+RUN curl -fsSL https://nodejs.org/dist/v22.22.0/node-v22.22.0-linux-x64.tar.gz -o node.tar.gz \
     && tar -xzf node.tar.gz -C /usr/local --strip-components=1 \
     && rm -f node.tar.gz
 # Clone Hermes
@@ -60,7 +60,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js runtime
-RUN curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.gz -o node.tar.gz \
+RUN curl -fsSL https://nodejs.org/dist/v22.22.0/node-v22.22.0-linux-x64.tar.gz -o node.tar.gz \
     && tar -xzf node.tar.gz -C /usr/local --strip-components=1 \
     && rm -f node.tar.gz
 
