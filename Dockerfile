@@ -35,6 +35,11 @@ RUN python -m venv .venv \
     && find .venv -type d -name "__pycache__" -exec rm -rf {} + \
     && rm -rf /root/.cache/pip
 
+# Pre-build web UI and TUI assets so runtime does not need npm install
+RUN npm install --workspace web \
+    && npm run build --workspace web \
+    && rm -rf /root/.npm
+
 # =========================
 # Stage 2: Runtime
 # =========================
