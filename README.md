@@ -37,6 +37,10 @@ helm install hermes ./charts/hermes -n hermes --create-namespace
 helm upgrade hermes ./charts/hermes -n hermes
 ```
 
+The chart does **not** create the namespace: use `--create-namespace`, or create it
+yourself with `kubectl create namespace hermes`. Every resource uses
+`.Release.Namespace`, so `-n` is the only place to set it.
+
 The chart deploys:
 
 - **Gateway** - API server on port 8642, with multi-agent profile support
