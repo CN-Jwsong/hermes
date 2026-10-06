@@ -1,7 +1,7 @@
 # =========================
 # Stage 1: Builder
 # =========================
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HERMES_DIR=/opt/hermes
@@ -26,20 +26,19 @@ RUN case "$TARGETARCH" in \
     && tar -xzf node.tar.gz -C /usr/local --strip-components=1 \
     && rm -f node.tar.gz \
     && node --version
+
 # Clone Hermes
 RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git $HERMES_DIR
 
 WORKDIR $HERMES_DIR
 
-# Create venv and install dependencies
+# hermes-agent pins core deps behind python_version >= '3.14', so a 3.11/3.12
+# interpreter silently installs ZERO dependencies. [all] pulls the server
+# profile (web, mcp, uvloop, pty, acp, cron, sms, google, youtube).
 RUN python -m venv .venv \
     && .venv/bin/pip install --upgrade pip setuptools wheel \
-    && .venv/bin/pip install --no-cache-dir -e . \
-    && .venv/bin/pip install --no-cache-dir \
-        fastapi \
-        "uvicorn[standard]" \
-        aiohttp \
-        cryptography \
+    && .venv/bin/pip install --no-cache-dir -e ".[all]" \
+    && .venv/bin/python -c "import ruamel.yaml, fastapi, uvicorn, starlette; print('deps ok')" \
     && find .venv -type d -name "__pycache__" -exec rm -rf {} + \
     && rm -rf /root/.cache/pip
 
@@ -51,7 +50,7 @@ RUN npm install --no-audit --no-fund \
 # =========================
 # Stage 2: Runtime
 # =========================
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HERMES_HOME=/root/.hermes
