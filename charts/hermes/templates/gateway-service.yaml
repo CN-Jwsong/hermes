@@ -1,3 +1,10 @@
+{{- $targetPort := .Values.gateway.service.port }}
+{{- range .Values.gateway.agents }}
+{{- if .enabled }}
+{{- $targetPort = .port }}
+{{- break }}
+{{- end }}
+{{- end }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,4 +16,4 @@ spec:
     app: hermes-gateway
   ports:
     - port: {{ .Values.gateway.service.port }}
-      targetPort: {{ .Values.gateway.service.port }}
+      targetPort: {{ $targetPort }}

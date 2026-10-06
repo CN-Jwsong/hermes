@@ -22,25 +22,27 @@ spec:
         - name: {{ $agent.name }}
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command:
-            - /usr/local/bin/hermes
+          args:
 {{- if $agent.profile }}
             - "--profile={{ $agent.profile }}"
 {{- end }}
-            - gateway
-            - run
+            - "gateway"
+            - "run"
           ports:
-            - containerPort: {{ $.Values.gateway.service.port }}
+            - containerPort: {{ $agent.port }}
           envFrom:
             - secretRef:
                 name: hermes-secrets
+          env:
+            - name: API_SERVER_PORT
+              value: {{ $agent.port | quote }}
           volumeMounts:
             - name: data
-              mountPath: /root/.hermes
+              mountPath: /opt/data
             - name: dshm
               mountPath: /dev/shm
           resources:
-            {{- toYaml $agent.resources | nindent 12 }}
+            {{- toYaml $.Values.gateway.resources | nindent 12 }}
       {{- end }}
       {{- end }}
       volumes:

@@ -1,7 +1,7 @@
 namespace: hermes
 
 image:
-  repository: ghcr.io/cn-jwsong/hermes
+  repository: nousresearch/hermes-agent
   tag: latest
   pullPolicy: Always
 
@@ -11,43 +11,44 @@ secrets:
   hermesAllowRootGateway: "1"
   anthropicApiKey: ""
   telegramBotToken: ""
+  # Required by the official image: the OpenAI-compatible API server refuses to
+  # start without a usable API_SERVER_KEY (>= 16 chars, not a placeholder).
+  # Without it nothing listens on 8642.
+  apiServerKey: "change-me-32-byte-api-server-key"
+  # Dashboard auth provider. A non-loopback bind always requires an auth
+  # provider; --insecure has been a no-op since the June 2026 hardening.
+  dashboardUsername: "admin"
+  dashboardPassword: "change-me-dashboard-password"
+  dashboardSecret: "change-me-32-byte-dashboard-session-secret"
 
 gateway:
   replicas: 1
   service:
     type: ClusterIP
     port: 8642
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "512m"
+    limits:
+      memory: "2Gi"
+      cpu: "1280m"
+  # Containers in one pod share the network namespace, so every agent needs its
+  # own API_SERVER_PORT. The first enabled agent's port must match
+  # gateway.service.port (it is the Service targetPort).
   agents:
     - name: gateway-hermes
       profile: ""
+      port: 8642
       enabled: true
-      resources:
-        requests:
-          memory: "512Mi"
-          cpu: "256m"
-        limits:
-          memory: "1Gi"
-          cpu: "1000m"
     - name: gateway-coder
       profile: coder
+      port: 8643
       enabled: true
-      resources:
-        requests:
-          memory: "512Mi"
-          cpu: "256m"
-        limits:
-          memory: "1Gi"
-          cpu: "1000m"
     - name: gateway-devops
       profile: devops
+      port: 8644
       enabled: true
-      resources:
-        requests:
-          memory: "512Mi"
-          cpu: "256m"
-        limits:
-          memory: "1Gi"
-          cpu: "1000m"
 
 dashboard:
   replicas: 1
@@ -59,8 +60,8 @@ dashboard:
       memory: "512Mi"
       cpu: "256m"
     limits:
-      memory: "2Gi"
-      cpu: "1000m"
+      memory: "1.5Gi"
+      cpu: "1280m"
 
 persistence:
   storageClass: ""
