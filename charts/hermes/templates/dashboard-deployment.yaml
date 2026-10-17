@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.dashboard.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: hermes-dashboard
