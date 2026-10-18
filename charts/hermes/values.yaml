@@ -4,9 +4,8 @@ image:
   pullPolicy: Always
 
 secrets:
-  openaiApiKey: "your-openai-api-key-here"
+  openaiApiKey: ""
   gatewayAllowAllUsers: "true"
-  hermesAllowRootGateway: "1"
   anthropicApiKey: ""
   telegramBotToken: ""
   # Required by the official image: the OpenAI-compatible API server refuses to
@@ -39,6 +38,10 @@ gateway:
       profile: ""
       port: 8642
       enabled: true
+    # Named profiles must already exist in the data volume before they are
+    # enabled, or `--profile=<name> gateway run` exits with "Profile '<name>'
+    # does not exist" and the container crash-loops:
+    #   kubectl -n hermes exec deploy/hermes-gateway -- hermes profile create coder
     # - name: gateway-coder
     #   profile: coder
     #   port: 8643

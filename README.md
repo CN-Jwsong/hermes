@@ -101,20 +101,28 @@ Containers in one pod share the network namespace, so every agent needs its own
 | `gateway-coder` | `coder` | 8643 | `--profile=coder gateway run` |
 | `gateway-devops` | `devops` | 8644 | `--profile=devops gateway run` |
 
-Control which agents are active via `values.yaml`:
+**Named profiles must exist before they are enabled.** `hermes --profile <name>` resolves
+to `<HERMES_HOME>/profiles/<name>` and exits with
+`Profile '<name>' does not exist. Create it with: hermes profile create <name>`
+otherwise (`hermes_cli/profiles.py`), so the container crash-loops:
+
+```bash
+kubectl -n hermes exec deploy/hermes-gateway -- hermes profile create coder
+```
+
+Control which agents are active via `values.yaml` (only the default agent ships enabled):
 
 ```yaml
 gateway:
   agents:
     - name: gateway-hermes
+      profile: ""
       port: 8642
       enabled: true
-    - name: gateway-coder
-      port: 8643
-      enabled: true      # set false to disable
-    - name: gateway-devops
-      port: 8644
-      enabled: true
+    # - name: gateway-coder
+    #   profile: coder
+    #   port: 8643
+    #   enabled: true
 ```
 
 ### Resources
@@ -131,11 +139,21 @@ is the sum over enabled agents (3 agents = 6Gi memory limit, `3.84` CPU limit).
 
 - The gateway and dashboard pods both mount the same `ReadWriteOnce` PVC, so they must
   land on the same node (use `ReadWriteMany` or pod affinity if your storage requires it).
-- The dashboard reads gateway liveness over `GATEWAY_HEALTH_URL` (HTTP). Upstream notes
-  that a dashboard in a separate PID namespace cannot detect the gateway process directly.
+- The dashboard reads gateway liveness over `GATEWAY_HEALTH_URL` (HTTP), which works
+  across pods. Upstream notes that a separate dashboard container is only fully
+  supported with a shared PID and network namespace, so gateway start/stop/restart
+  from the UI does not work here — status reporting does.
+- Do **not** add `shareProcessNamespace: true` to work around that. It makes the
+  container entrypoint stop being PID 1, and `entrypoint-dispatch.sh` then skips
+  s6-overlay entirely: supervision, the zombie reaper and the dashboard s6 slot are
+  all lost.
 - The chart does not set `securityContext`; the official image needs root at boot for
-  its bootstrap and drops privileges itself.
-- Set `secrets.openaiApiKey` before installing; GitHub push protection rejects real keys.
+  its bootstrap and drops to the `hermes` user itself via `s6-setuidgid`. That drop is
+  also why `HERMES_ALLOW_ROOT_GATEWAY` is not set — the gateway never runs as root, so
+  the upstream guard would never fire anyway.
+- Set `secrets.openaiApiKey` before installing. It defaults to empty, and a fake value
+  such as `your-openai-api-key-here` is not detected as a placeholder, so it surfaces
+  as 401s instead of "not configured".
 
 ## Usage
 
